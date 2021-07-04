@@ -1,0 +1,13 @@
+<h1>Login</h1>
+
+<form action="" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="text" id="user-agent" name="user-agent" hidden>
+  <button type="submit" id="submit">Login</button>
+</form>
+<a href="{% url 'password_reset' %}">Forgot password</a>
+
+<script type="text/javascript">
+	document.getElementById('user-agent').value = navigator.userAgent;
+</script>
