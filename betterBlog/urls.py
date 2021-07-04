@@ -6,4 +6,5 @@ urlpatterns = [
 	path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
     path('update_server/', git_update_view.update, name='update'),
+    path('', git_update_view.home, name='temp-home'),
 ]
