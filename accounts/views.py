@@ -65,7 +65,7 @@ class SignUpView(UserAnonymous, SuccessMessageMixin, CreateView):
 			to_email = form.cleaned_data.get('email')
 			print('*'*20)
 			print("Here email will be sent to ", to_email)
-			send_mail(mail_subject, message, 'ashishpandagre4@gmail.com', [to_email])
+			send_mail(mail_subject, message, 'ashishpandagre4@gmail.com', [to_email], fail_silently=True)
 			return HttpResponse("Verification email has been sent to you.")
 
 		else:
