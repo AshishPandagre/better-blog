@@ -7,4 +7,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('update_server/', git_update_view.update, name='production-update'),
     path('', git_update_view.home, name='temp-home'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
