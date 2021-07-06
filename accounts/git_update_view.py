@@ -20,7 +20,7 @@ def update(request):
 
         return HttpResponse("Updated code on PythonAnywhere")
     else:
-        return HttpResponse("Couldn't update the code on PythonAnywhere")
+        return HttpResponse("Couldn't update the code on PythonAnywhere...")
 
 
 def home(request):
