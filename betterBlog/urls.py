@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts import git_update_view
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
 	path('accounts/', include('accounts.urls')),
