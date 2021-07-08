@@ -138,3 +138,13 @@ class NewLoginView(LoginView):
 		user_session.save()
 
 		return data
+
+def ua_string(request):
+	if request.method == "GET":
+		return render(request, 'ua-string.html')
+	else:
+		user_agent_string = request.POST.get('user-agent', 'unknown')
+		if user_agent_string != 'unknown':
+			user_agent = parse(user_agent_string)
+			return HttpResponse(f'{user_agent} || device-family={user_agent.device.family}, browser-family={user_agent.browser.family}, os-family={user_agent.os.family}')
+		return HttpResponse('unknown')

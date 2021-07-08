@@ -4,6 +4,8 @@ from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
+	path('ua-string/', views.ua_string, name='ua-string'),
+
 	path('profile/', views.GetProfile.as_view(), name='get-profile'),
 	path('settings/', views.UpdateProfile.as_view(), name='update-profile'),
 	path('signup/', views.SignUpView.as_view(), name='signup'),
