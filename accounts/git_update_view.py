@@ -4,6 +4,7 @@ import git
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import os
 
 @csrf_exempt
 def update(request):
@@ -17,6 +18,8 @@ def update(request):
         origin = repo.remotes.origin
 
         origin.pull()
+
+        os.system('touch /var/www/betterblog_pythonanywhere_com_wsgi.py')
 
         return HttpResponse("Updated code on PythonAnywhere")
     else:
