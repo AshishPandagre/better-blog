@@ -9,11 +9,12 @@ import mechanize
 import getpass
 import time
 import json
+from django.conf import settings
 
 
 def reload():
 
-    with open(os.path.join(BASE_DIR, 'secrets.json')) as secret_file:
+    with open(os.path.join(settings.BASE_DIR, 'secrets.json')) as secret_file:
         secret = json.load(secret_file)
 
     username = secret['username']
@@ -31,7 +32,7 @@ def reload():
 
     br.submit()
     time.sleep(1)
-    resp = br.open('https://www.pythonanywhere.com/user/{username}/webapps/{domain}/reload')
+    resp = br.open(f'https://www.pythonanywhere.com/user/{username}/webapps/{domain}/reload')
     print(resp.read())
     time.sleep(1)
 
