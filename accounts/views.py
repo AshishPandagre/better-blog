@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from .models import User, UserSession, Profile
+from .models import UserSession, Profile
 from .forms import UserRegisterForm, UpdateProfileForm
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -17,7 +17,10 @@ from django.views.generic import DetailView
 from django.contrib.auth.views import LoginView
 from user_agents import parse
 from django.contrib.sessions.models import Session
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class UpdateProfile(LoginRequiredMixin, UpdateView):
 	model = Profile
@@ -88,9 +91,15 @@ def activate(request, uidb64, token):
 	
 
 def logout_session(request, pk):
-	session = UserSession.objects.get(id=pk)
-	if session.user != request.user:
-		return HttpResponse("Access Denied.")
+	try:
+		session = UserSession.objects.get(id=pk, user=request.user)
+	except UserSession.DoesNotExist:
+		return HttpResponse("does not exist.")
+
+	current_key = request.session.session_key
+	
+	if current_key == session.sess_key:
+		return HttpResponse("Not allowed.")
 	else:
 		sess_key = session.sess_key
 		s = Session(pk=sess_key)
