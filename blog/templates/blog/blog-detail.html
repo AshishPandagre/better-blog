@@ -1,0 +1,11 @@
+<h1>Detail page</h1>
+title={{ blog.title }} | author={{ blog.author }} | read time={{ blog.read_time }} <br>
+{{ blog.content }}
+
+<br><br><br>
+<h2>Comments</h2>
+{% for comment in comments %}
+	{{ comment.commenter }} | {{ comment.body }} | likes={{ comment.n_likes }} <br>
+{% empty %}
+	<p>No comments to display</p>
+{% endfor %}
