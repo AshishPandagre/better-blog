@@ -12,5 +12,5 @@ email = {{ user.email }}<br>
 {% for session in sessions %}
 	{{ session.device }} | {{ session.login_time }} | <a href="{% url 'logout-session' session.id %}">Logout</a>
 {% empty %}
-	You don't have any other active sessions.
+	You don't have any other active sessions. BETA (may not work well in incognito mode.)
 {% endfor %}
