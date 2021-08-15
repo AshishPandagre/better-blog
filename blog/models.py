@@ -45,7 +45,7 @@ class Blog(models.Model):
 
 class Comment(models.Model):
 	commenter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-	body = models.CharField(max_length=100)
+	body = models.CharField(max_length=1000)
 	blog = models.ForeignKey(Blog, models.CASCADE)
 	n_likes = models.IntegerField(default=0)
 	n_dislikes = models.IntegerField(default=0)
