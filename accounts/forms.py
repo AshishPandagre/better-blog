@@ -15,6 +15,7 @@ class UserRegisterForm(UserCreationForm):
 		user = super(UserRegisterForm, self).save(commit=False)
 		user.email = self.cleaned_data['email']
 		user.username = user.email.split('@')[0]
+		user.is_active = False
 
 		if commit:
 			user.save()

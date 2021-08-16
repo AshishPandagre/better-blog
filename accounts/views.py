@@ -54,9 +54,8 @@ class SignUpView(UserAnonymous, SuccessMessageMixin, CreateView):
 	def form_valid(self, form):
 		email = form.cleaned_data.get('email')
 		if not User.objects.filter(email__iexact=email).exists():
-			user = form.save(commit=False)
-			user.is_active = False
-			user.save()
+			user = form.save(commit=True)
+			# user.save()
 			current_site = get_current_site(self.request)
 			mail_subject = "Activate your account"
 			message = render_to_string('registration/email_template.html', {

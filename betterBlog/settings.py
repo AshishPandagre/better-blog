@@ -131,7 +131,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTHENTICATION_BACKENDS = ['accounts.backend.EmailBackend']
+# AUTHENTICATION_BACKENDS = ['accounts.backend.EmailBackend']
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'get-profile'
@@ -155,3 +155,6 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = get_secret('HOST_USER')
 EMAIL_HOST_PASSWORD = get_secret('HOST_PASSWORD')
+
+AUTH_USER_MODEL = 'accounts.User'
+
