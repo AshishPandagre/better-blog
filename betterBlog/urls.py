@@ -7,9 +7,8 @@ from django.views.generic.base import RedirectView
 
 
 urlpatterns = [
-	path('', RedirectView.as_view(url='blog/')),
+	path('', include('blog.urls')),
 	path('accounts/', include('accounts.urls')),
-	path('blog/', include('blog.urls')),
     path('admin/', admin.site.urls),
     path('update_server/', git_update_view.update, name='production-update'),
 ] 

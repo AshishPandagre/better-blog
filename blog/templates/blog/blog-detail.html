@@ -186,7 +186,7 @@
 		</main>
 
 <script type="text/javascript">
-	BASE_URL = 'http://127.0.0.1:8000/blog/'
+	BASE_URL = "{{ site.domain }}"
 	comment_counter = document.getElementById("comment-counter")
 
 	comment_form = document.getElementById('comment-form')
@@ -209,7 +209,7 @@
 		console.log(action)
 		console.log(commentid)
 		
-		const res = await fetch(BASE_URL+'doAction/', 
+		const res = await fetch(BASE_URL+'/doAction/', 
 		{
 			method: 'POST',
 			headers: {
@@ -243,7 +243,7 @@
 		e.preventDefault()
 		comment = comment_form.body.value
 
-		const res = await fetch(BASE_URL+'addComment/', 
+		const res = await fetch(BASE_URL+'/addComment/', 
 		{
 			method: "POST",
 			headers: {
@@ -269,7 +269,7 @@
 	async function deleteComment(slug, commentId){
 		console.log("Delete clicked", slug, commentId)
 	
-		const res = await fetch(BASE_URL+'deleteComment/', 
+		const res = await fetch(BASE_URL+'/deleteComment/', 
 		{
 			method: "POST",
 			headers: {
@@ -359,7 +359,7 @@ async function addBookmark(){
 	console.log('clicked on bookmark')
 	bookmark_icon = document.getElementById("bookmark_icon")
 
-	const res = await fetch(BASE_URL+'toggleBookmark/', 
+	const res = await fetch(BASE_URL+'/toggleBookmark/', 
 	{
 		method: "POST",
 		headers: {
