@@ -14,5 +14,6 @@ urlpatterns = [
 	path('login/', views.NewLoginView.as_view(redirect_authenticated_user=True), name='login'),
 	path('logout-session/<int:pk>/', views.logout_session, name='logout-session'),
 	path('', include('django.contrib.auth.urls')),
+	
 ]
 
