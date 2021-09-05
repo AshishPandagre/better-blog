@@ -19,6 +19,8 @@ from user_agents import parse
 from django.contrib.sessions.models import Session
 from django.contrib.auth import get_user_model
 
+from django.views.generic import ListView
+from blog.models import Bookmark, Blog
 
 User = get_user_model()
 
@@ -26,7 +28,7 @@ class UpdateProfile(LoginRequiredMixin, UpdateView):
 	model = Profile
 	form_class = UpdateProfileForm
 	template_name = 'registration/update_profile.html'
-	success_url = reverse_lazy('get-profile')
+	success_url = reverse_lazy('bookmarks')
 
 	def get_object(self):
 		print('*'*10)
@@ -41,14 +43,24 @@ class UserAnonymous(UserPassesTestMixin):
 		return True
 
 	def handle_no_permission(self):
-		return redirect('get-profile')
+		return redirect('bookmarks')
+
+
+class MyBlogs(ListView):
+	model = Blog
+	paginate_by = 2
+	template_name = 'registration/my-blogs.html'
+	context_object_name = 'blogs'
+
+	def get_queryset(self):
+		return Blog.objects.filter(author=self.request.user)
 
 
 class SignUpView(UserAnonymous, SuccessMessageMixin, CreateView):
-	redirect_field_name = 'get-profile'
+	redirect_field_name = 'bookmarks'
 	template_name = 'registration/signup.html'
 	form_class = UserRegisterForm
-	success_url = reverse_lazy('get-profile')
+	success_url = reverse_lazy('bookmarks')
 	success_message = "Your profile was created successfully."
 
 	def form_valid(self, form):
@@ -68,10 +80,24 @@ class SignUpView(UserAnonymous, SuccessMessageMixin, CreateView):
 			print('*'*20)
 			print("Here email will be sent to ", to_email)
 			send_mail(mail_subject, message, 'ashishpandagre4@gmail.com', [to_email], fail_silently=True)
-			return HttpResponse("Verification email has been sent to you.")
+			return render(self.request, 'registration/verification_email_sent.html')
 
 		else:
 			return HttpResponse("An email already exists.")
+
+
+from django.contrib.auth.views import PasswordChangeView
+class Security(PasswordChangeView):
+	template_name = 'registration/security.html'
+	# success_url = reverse_lazy('bookmarks')
+
+
+	def get_context_data(self, *args, **kwargs):
+		context = super(Security, self).get_context_data(*args, **kwargs)
+		sess_key = self.request.session.session_key
+		sessions = UserSession.objects.filter(user=self.request.user).exclude(sess_key=sess_key)
+		context['sessions'] = sessions
+		return context
 
 
 def activate(request, uidb64, token):
@@ -84,9 +110,9 @@ def activate(request, uidb64, token):
 	if user is not None and account_activation_token.check_token(user, token):
 		user.is_active = True
 		user.save()
-		return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+		return render(request, 'registration/activate_email.html', context={'msg': 'Thank you for your email confirmation. Now you can login your account.'})
 	else:
-		return HttpResponse('Activation link is invalid!')
+		return render(request, 'registration/activate_email.html', context={'msg': 'Activation link is invalid.'})
 	
 
 def logout_session(request, pk):
@@ -107,25 +133,19 @@ def logout_session(request, pk):
 		return HttpResponse("Success")
 
 
-class GetProfile(LoginRequiredMixin, DetailView):
-	model = User
-	template_name = 'registration/profile.html'
-	context_object_name = 'user'
+class Bookmarks(LoginRequiredMixin, ListView):
+	model = Bookmark
+	template_name = 'registration/bookmarks.html'
+	context_object_name = 'bookmarks'
+	paginate_by = 2
 
-	def get_object(self):
-		return self.request.user
-
-	def get_context_data(self, *args, **kwargs):
-		context = super(GetProfile, self).get_context_data(*args, **kwargs)
-		
-		sess_key = self.request.session.session_key
-		sessions = UserSession.objects.filter(user=self.request.user).exclude(sess_key=sess_key)
-		context['sessions'] = sessions
-
-		return context
+	def get_queryset(self, *args, **kwargs):
+		return Bookmark.objects.filter(user=self.request.user)
 
 
 class NewLoginView(LoginView):
+	template_name = 'registration/login.html'
+
 	def form_valid(self, form):
 		data = super().form_valid(form)
 
@@ -136,12 +156,21 @@ class NewLoginView(LoginView):
 		
 		if user_agent_string != 'unknown':
 			user_agent = parse(user_agent_string)
-			user_agent_string = user_agent.device.family + " " + user_agent.browser.family + " " + user_agent.os.family
+			device = user_agent.device.family
+			browser = user_agent.browser.family
+			os = user_agent.os.family
+			if user_agent.is_mobile: device_type = "mobile"
+			elif user_agent.is_pc: device_type = "desktop"
+			elif user_agent.is_tablet: device_type = "tablet"
+			else: device_type = "question-circle "
+			# user_agent_string = user_agent.device.family + " " + user_agent.browser.family + " " + user_agent.os.family
 
 		user_session = UserSession.objects.create(
 			user = self.request.user,
-			device = user_agent_string,
-			sess_key = sess_key
+			device = device,
+			browser = browser,
+			sess_key = sess_key,
+			device_type = device_type
 		)
 		user_session.save()
 

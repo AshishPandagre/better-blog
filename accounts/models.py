@@ -29,7 +29,6 @@ class CustomAccountManager(BaseUserManager):
 			raise ValueError('You must provide an email address')
 
 		email = self.normalize_email(email)
-		other_fields.setdefault('is_active', False)
 		user = self.model(email=email, username=username,
 						  **other_fields)
 		user.set_password(password)
@@ -66,14 +65,10 @@ class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 	first_name = models.CharField(max_length=100, blank=True, null=True)
 	last_name = models.CharField(max_length=100, blank=True, null=True)
-	birthday = models.DateField(null=True, blank=True)
-	gender = models.CharField(choices=genders, null=True, blank=True, max_length=10)
-	phone = models.CharField(max_length=20, null=True, blank=True)
-	address = models.CharField(max_length=100, null=True, blank=True)
-	number = models.IntegerField(null=True, blank=True)
-	city = models.CharField(max_length=30, null=True, blank=True)
-	country = models.CharField(choices=countries, max_length=30, null=True, blank=True)
-	zip_code = models.CharField(max_length=6, null=True, blank=True)
+	birthday = models.DateField(blank=True, null=True)
+	gender = models.CharField(choices=genders, blank=True, max_length=10, null=True)
+	phone = models.CharField(max_length=20, blank=True, null=True)
+	img = models.ImageField(upload_to='users', default='users/default-user.jpg')
 
 	def __str__(self):
 		return self.user.username
@@ -81,8 +76,11 @@ class Profile(models.Model):
 class UserSession(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	device = models.CharField(max_length=200)
+	device_type = models.CharField(max_length=20)
+	browser = models.CharField(max_length=200)
 	login_time = models.DateTimeField(auto_now_add=True)
 	sess_key = models.CharField(max_length=200)
+
 
 	def __str__(self):
 		return f'{self.user.username} - {self.device}'
