@@ -24,7 +24,7 @@ def update(request):
 
         import requests
     
-        with open(os.path.join(BASE_DIR, 'secrets.json')) as secret_file:
+        with open(os.path.join(settings.BASE_DIR, 'secrets.json')) as secret_file:
             secret = json.load(secret_file)
 
         username = "betterblog"
