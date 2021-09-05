@@ -198,7 +198,7 @@ def action(request):
 	return HttpResponse(response)
 
 
-@my_login_required
+@login_required
 @csrf_exempt
 def upload_image(request):
     if request.method == "POST":
