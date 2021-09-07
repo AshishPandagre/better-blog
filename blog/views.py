@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.urls import reverse
 
 from .models import Blog, Tag, Comment, Bookmark, Opinion, Tag
 from .forms import *
@@ -11,7 +12,7 @@ from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.forms.models import model_to_dict
 
 from datetime import datetime, timezone
@@ -104,40 +105,31 @@ class BlogDetail(FormMixin, DetailView):
 		context['comments'] = Comment.objects.filter(blog=context['blog'])
 		return context
 
+	def post(self, *args, **kwargs):
+		# form = self.get_context_data(**kwargs)['comment_form']
+		form = CommentForm(self.request.POST)
+		if form.is_valid():
+			print('*'*30)
+			print('form is valid.', form)
+			form.instance.commenter = self.request.user
+			form.instance.blog = self.get_object()
+			form.save()
+			return HttpResponseRedirect(reverse('blog-detail', kwargs={'slug': self.get_object().slug}))
 
-@csrf_exempt
-@my_login_required
-def addComment(request):
-	data = json.loads(request.body)
-	try:
-		slug = data['slug']
-		comment = data['comment']
-		blog = get_object_or_404(Blog, slug=slug)
-
-		comment = Comment(commenter=request.user, body=comment, blog=blog)
-		comment.save()
-		response = json.dumps({'response': 'OK',
-								'id': comment.id,
-								'comment': comment.body,
-								}, default=str)
-	except Exception as e:
-		response = json.dumps({'response': 'ERROR'})
-
-	return HttpResponse(response)
+		else:
+			return HttpResponseRedirect(reverse('blog-detail', kwargs={'slug': self.get_object().slug}))
 
 
-@csrf_exempt
-@my_login_required
-def deleteComment(request):
-	data = json.loads(request.body)
-	try:
-		slug = data['slug']
-		commentId = data['commentId']
-		comment = get_object_or_404(Comment, id=commentId)
-		comment.delete()
-		return HttpResponse(json.dumps({'response': 'OK', 'id': commentId}))
-	except Exception as e:
-		return HttpResponse(json.dumps({'response': 'ERROR'}))
+class DeleteComment(LoginRequiredMixin, DeleteView):
+	model = Comment
+
+	def get(self, *args, **kwargs):
+		return self.post(*args, **kwargs)
+
+	def get_success_url(self):
+		print('*'*30)
+		return reverse('blog-detail', kwargs={"slug": self.get_object().blog.slug})
+
 
 
 @csrf_exempt
@@ -178,7 +170,7 @@ def action(request):
 
 		comment = get_object_or_404(Comment, id=commentId)
 
-		op, _ = Opinion.objects.get_or_create(user=request.user, comment=comment)
+		op, _ = comment.opinions.get_or_create(user=request.user)
 
 		if action == "LIKE": status = 1
 		if action == "DISLIKE": status = -1
@@ -201,36 +193,36 @@ def action(request):
 @login_required
 @csrf_exempt
 def upload_image(request):
-    if request.method == "POST":
-        file_obj = request.FILES['file']
-        file_name_suffix = file_obj.name.split(".")[-1]
-        if file_name_suffix not in ["jpg", "png", "gif", "jpeg", ]:
-            return JsonResponse({"message": "Wrong file format"})
+	if request.method == "POST":
+		file_obj = request.FILES['file']
+		file_name_suffix = file_obj.name.split(".")[-1]
+		if file_name_suffix not in ["jpg", "png", "gif", "jpeg", ]:
+			return JsonResponse({"message": "Wrong file format"})
 
-        path = os.path.join(
-            settings.MEDIA_ROOT,
-            'tinymce',
-        )
-        # If there is no such path, create
-        if not os.path.exists(path):
-            os.makedirs(path)
+		path = os.path.join(
+			settings.MEDIA_ROOT,
+			'tinymce',
+		)
+		# If there is no such path, create
+		if not os.path.exists(path):
+			os.makedirs(path)
 
-        file_path = os.path.join(path, file_obj.name)
+		file_path = os.path.join(path, file_obj.name)
 
-        file_url = f'{settings.MEDIA_URL}tinymce/{file_obj.name}'
+		file_url = f'{settings.MEDIA_URL}tinymce/{file_obj.name}'
 
-        if os.path.exists(file_path):
-            return JsonResponse({
-                "message": "file already exist",
-                'location': file_url
-            })
+		if os.path.exists(file_path):
+			return JsonResponse({
+				"message": "file already exist",
+				'location': file_url
+			})
 
-        with open(file_path, 'wb+') as f:
-            for chunk in file_obj.chunks():
-                f.write(chunk)
+		with open(file_path, 'wb+') as f:
+			for chunk in file_obj.chunks():
+				f.write(chunk)
 
-        return JsonResponse({
-            'message': 'Image uploaded successfully',
-            'location': file_url
-        })
-    return JsonResponse({'detail': "Wrong request"})
+		return JsonResponse({
+			'message': 'Image uploaded successfully',
+			'location': file_url
+		})
+	return JsonResponse({'detail': "Wrong request"})

@@ -8,7 +8,7 @@ script.onload = function(){
 		selector: 'textarea',  // change this value according to your HTML
 
 		// For more info regarding local upload in tinymce https://www.tiny.cloud/docs/demo/local-upload/
-		images_upload_url: '/blog/upload_image/', // Image upload address in Django route
+		images_upload_url: '/upload_image/', // Image upload address in Django route
 		
 		height: 456,
 		plugins: [

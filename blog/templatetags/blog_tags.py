@@ -10,7 +10,7 @@ def userLikedComment(user, commentId):
 	try:
 
 		c = get_object_or_404(Comment, id=int(commentId))
-		o = get_object_or_404(Opinion, user=user, comment=c)
+		o = c.opinions.get(user=user)
 		if o.action==1:
 			return "fas"
 		return "far"
@@ -24,7 +24,7 @@ def userDislikedComment(user, commentId):
 	try:
 
 		c = get_object_or_404(Comment, id=int(commentId))
-		o = get_object_or_404(Opinion, user=user, comment=c)
+		o = c.opinions.get(user=user)
 		if o.action==-1:
 			return "fas"
 		return "far"

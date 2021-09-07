@@ -112,7 +112,6 @@
 									{% for comment in comments %}
 
 																							
-
 										<div class="card bg-gray-200 border-gray-300 rounded p-4 mb-4" id="{{comment.id}}">
 											<div class="d-flex justify-content-between mb-4">
 												<span class="font-small">
@@ -134,17 +133,20 @@
 													</button>
 
 													
+													
+													{% if comment.commenter == request.user %}
 														<div class="dropdown-menu py-0" style="">
-															{% if comment.commenter == request.user %}
 
-															  <a class="dropdown-item text-danger rounded-bottom" data-id="{{ comment.id }}" id="delete-comment" onclick="deleteComment('{{blog.slug}}', '{{comment.id}}')">
-																<span class="fa fa-trash me-2" aria-hidden="true"></span>Delete </a>
-																{% endif %}
+															<form method="POST" action="{% url 'deleteComment' comment.id %}">
+																{% csrf_token %}
+															  <input  type="submit" class="dropdown-item text-danger rounded-bottom" value="Delete">
+																<span class="fa fa-trash me-2" aria-hidden="true"></span>
+																
+															</form>
 
-															  <a class="dropdown-item text-danger rounded-bottom">
-																<span class="far fa-flag me-2" aria-hidden="true"></span>Report </a>
-														
 														</div>
+													{% endif %}
+
 
 												  </div>
 												  {% endif %}
@@ -175,6 +177,72 @@
 											{% endif %}
 
 										</div>
+
+										{% for reply in comment.reply_set.all %}
+										<div class="card bg-gray-200 border-gray-300 rounded p-4 ms-5 mb-4" id="{{comment.id}}">
+											<div class="d-flex justify-content-between mb-4">
+												<span class="font-small">
+													<a href="#">
+														<img class="avatar-sm img-fluid rounded-circle me-2" src="{{ comment.commenter.profile.img.url }}" alt="avatar">
+														<span class="fw-bold">{{ reply.commenter.username }}</span>
+													</a>
+													<span class="ms-2">2 min ago</span>
+												</span>
+
+												<div class="col text-right">
+													{% if request.user.is_authenticated %}
+												  <div class="btn-group">
+													<button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													  <span class="icon icon-sm">
+														<span class="fas fa-ellipsis-h icon-secondary"></span>
+													  </span>
+													  <span class="sr-only">Toggle Dropdown</span>
+													</button>
+
+													
+														<div class="dropdown-menu py-0" style="">
+															{% if reply.commenter == request.user %}
+
+															  <a class="dropdown-item text-danger rounded-bottom" data-id="{{ reply.id }}" id="delete-comment" onclick="deleteComment('{{blog.slug}}', '{{reply.id}}')">
+																<span class="fa fa-trash me-2" aria-hidden="true"></span>Delete </a>
+																{% endif %}
+
+															  <a class="dropdown-item text-danger rounded-bottom">
+																<span class="far fa-flag me-2" aria-hidden="true"></span>Report </a>
+														
+														</div>
+
+												  </div>
+												  {% endif %}
+												</div>
+
+											</div>
+											<p class="m-0">
+												{{ reply.body }}
+											</p>
+
+											{% if request.user.is_authenticated %}
+												<div class="mt-4 mb-3 d-flex justify-content-between">
+													<div onclick="doAction(event)">
+
+														<span class="
+														{% userLikedComment request.user reply.id %} fa-thumbs-up text-success me-3" name="like" data-bs-toggle="tooltip" data-bs-placement="top" title="Like comment" data-original-title="Like comment" data-action="LIKE"  data-commentId="{{ reply.id }}"></span>
+
+														<span class="
+														{% userDislikedComment request.user reply.id %} fa-thumbs-down text-danger me-3" name="dislike" data-bs-toggle="tooltip" data-bs-placement="top" title="Dislike comment" data-original-title="Dislike comment" data-action="DISLIKE"  data-commentId="{{ reply.id }}"></span>
+
+														<span class="font-small fw-light">{{ reply.n_likes }} like(s)</span>
+													</div>
+													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer1" aria-expanded="false" aria-controls="replyContainer1">
+														<span class="fas fa-reply me-2"></span>
+														Reply
+													</a>
+												</div>
+											{% endif %}
+
+										</div>
+										{% endfor %}
+
 									{% endfor %}
 
 								</div>
@@ -239,120 +307,37 @@
 	}
 
 
-	comment_form.addEventListener('submit', async (e) => {
-		e.preventDefault()
-		comment = comment_form.body.value
+	// del_btn = document.getElementById("delete-comment")
 
-		const res = await fetch(BASE_URL+'/addComment/', 
-		{
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({slug: slug, comment: comment})
-		}
-		)
-		data = await res.json()
-
-		if(data.response=="OK"){
-			console.log(data)
-			comment_counter.innerText = Number(comment_counter.innerText) + 1
-			addCommentToPage(data.id, data.comment)
-			comment_form.reset()
-		}
-		else showToast("Some error occured while posting your comment. Try again later.")
-	})
-
-
-	del_btn = document.getElementById("delete-comment")
-
-	async function deleteComment(slug, commentId){
-		console.log("Delete clicked", slug, commentId)
+	// async function deleteComment(slug, commentId){
+	// 	console.log("Delete clicked", slug, commentId)
 	
-		const res = await fetch(BASE_URL+'/deleteComment/', 
-		{
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({slug: slug, commentId: commentId})
-		}
-		)
+	// 	const res = await fetch(BASE_URL+'/deleteComment/', 
+	// 	{
+	// 		method: "POST",
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		body: JSON.stringify({slug: slug, commentId: commentId})
+	// 	}
+	// 	)
 
-		data = await res.json()
+	// 	data = await res.json()
 
-		if(data.response=="OK"){
-			comment_counter.innerText = Number(comment_counter.innerText) - 1
-			removeCommentFromPage(data.id)
-		}
-		else{
-			showToast("Some error while deleting your comment. Try again later.")
-		}
-	}
-
-
-	function createCommentString(id, comment){
-		str = `                     <div class="card bg-gray-200 border-gray-300 rounded p-4 mb-4" id=${id}>
-											<div class="d-flex justify-content-between mb-4">
-												<span class="font-small">
-													<a href="#">
-														<img class="avatar-sm img-fluid rounded-circle me-2" src="{{ request.user.profile.img.url }}" alt="avatar">
-														<span class="fw-bold">{{ request.user.username }}</span>
-													</a>
-													<span class="ms-2">Just now</span>
-												</span>
-
-												<div class="col text-right">
-												  <div class="btn-group">
-													<button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													  <span class="icon icon-sm">
-														<span class="fas fa-ellipsis-h icon-secondary"></span>
-													  </span>
-													  <span class="sr-only">Toggle Dropdown</span>
-													</button>
-													<div class="dropdown-menu py-0" style="">
-													  <a class="dropdown-item text-danger rounded-bottom" onclick="deleteComment('{{blog.slug}}', ${id})">
-														<span class="fa fa-trash me-2" aria-hidden="true"></span>Delete </a>
-
-														<a class="dropdown-item text-danger rounded-bottom">
-														<span class="far fa-flag me-2" aria-hidden="true"></span>Report </a>
-
-													</div>
-												  </div>
-												</div>
-
-											</div>
-											<p class="m-0">
-												${comment}
-											</p>
-											<div class="mt-4 mb-3 d-flex justify-content-between">
-												<div onclick="doAction(event)">
-													<span class="far fa-thumbs-up text-success me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Like comment" data-original-title="Like comment" data-action="LIKE" data-commentId=${id}></span>
-													<span class="far fa-thumbs-down text-danger me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Dislike comment" data-original-title="Dislike comment" data-action="DISLIKE" data-commentId=${id}></span>
-													<span class="font-small fw-light">0 likes</span>
-												</div>
-												<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer1" aria-expanded="false" aria-controls="replyContainer1">
-													<span class="fas fa-reply me-2"></span>
-													Reply
-												</a>
-											</div>
-										</div>`
-		return str
-	}
+	// 	if(data.response=="OK"){
+	// 		comment_counter.innerText = Number(comment_counter.innerText) - 1
+	// 		removeCommentFromPage(data.id)
+	// 	}
+	// 	else{
+	// 		showToast("Some error while deleting your comment. Try again later.")
+	// 	}
+	// }
 
 
-	function addCommentToPage(id, comment){
-		comment_list = document.getElementById('comment_list')
-		comment_str = createCommentString(id, comment)
-		newNode = document.createElement('div')
-		newNode.innerHTML = comment_str
-		comment_list.prepend(newNode)
-	}
-
-	function removeCommentFromPage(id){
-		ele = document.getElementById(id)
-		ele.remove()
-	}
+	// function removeCommentFromPage(id){
+	// 	ele = document.getElementById(id)
+	// 	ele.remove()
+	// }
 
 
 async function addBookmark(){

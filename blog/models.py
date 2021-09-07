@@ -5,6 +5,10 @@ from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 import random
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
+
 
 User = get_user_model()
 
@@ -72,11 +76,31 @@ class Bookmark(models.Model):
 		return f'{self.user.username} - {self.blog}'
 
 
+
+
+OPINIONS = (
+	(-1, 'dislike'),
+	(0, 'neutral'),
+	(1, 'like')
+)
+class Opinion(models.Model):
+	user = models.ForeignKey(User, models.CASCADE)
+	# comment = models.ForeignKey(Comment, models.CASCADE)
+
+	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+	object_id = models.PositiveIntegerField(null=True)
+	comment = GenericForeignKey('content_type', 'object_id')
+
+	action = models.IntegerField(choices=OPINIONS, default=0)
+
+
+
 class Comment(models.Model):
 	commenter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	body = models.CharField(max_length=1000)
 	blog = models.ForeignKey(Blog, models.CASCADE)
 	date_created = models.DateTimeField(auto_now_add=True)
+	opinions = GenericRelation(Opinion)
 
 	def __str__(self):
 		return f'{self.commenter.username} - {self.body}'
@@ -85,19 +109,33 @@ class Comment(models.Model):
 		ordering = ['-date_created']
 
 	def n_likes(self):
-		return Opinion.objects.filter(comment=self, action=1).count()
+		print('*'*20)
+		print(self.opinions.filter(action=1))
+		# return 1
+		return self.opinions.filter(action=1).count()
 
 	def n_dislikes(self):
-		return Opinion.objects.filter(comment=self, action=-1).count()
+		# return 1
+		return self.opinions.filter(action=-1).count()
 
 
-OPINIONS = (
-	(-1, 'dislike'),
-	(0, 'neutral'),
-	(1, 'like')
-)
-
-class Opinion(models.Model):
-	user = models.ForeignKey(User, models.CASCADE)
+class Reply(models.Model):
+	commenter = models.ForeignKey(User, models.SET_NULL, null=True)
+	body = models.CharField(max_length=1000)
 	comment = models.ForeignKey(Comment, models.CASCADE)
-	action = models.IntegerField(choices=OPINIONS, default=0)
+	date_created = models.DateTimeField(auto_now_add=True)
+	opinions = GenericRelation(Opinion)
+
+	def __str__(self):
+		return f'{self.commenter.username} - {self.body}'
+
+	class Meta:
+		ordering = ['-date_created']
+
+	def n_likes(self):
+		# return 1
+		return self.opinions.filter(action=1).count()
+
+	def n_dislikes(self):
+		# return 1
+		return self.opinions.filter(action=-1).count()
