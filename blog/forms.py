@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 
 
 class CommentForm(forms.ModelForm):
+	comment_id = forms.CharField(max_length=100)
 	class Meta:
 		model = Comment
 		fields = ['body']
@@ -17,4 +18,5 @@ class BlogCreateForm(forms.ModelForm):
 	class Meta:
 		model = Blog
 		fields = ['title', 'content', 'status', 'img']
+
 

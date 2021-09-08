@@ -18,6 +18,20 @@
   </div>
 </div>
 
+				{% if form.errors %}
+					{% for field in form %}
+						{% for error in field.errors %}
+								<div class="alert alert-danger" role="alert">
+								<strong>{{ field.name | title }} - {{ error|escape }}</strong>
+							</div>
+						{% endfor %}
+					{% endfor %}
+					{% for error in form.non_field_errors %}
+								<div class="alert alert-danger" role="alert">
+							<strong>{{ error|escape }}</strong>
+						</div>
+					{% endfor %}				
+				{% endif %}
 
 		<main>
 			<section class="section-header pb-5 pb-sm-7 bg-primary text-white">
@@ -90,6 +104,7 @@
 								<form method="POST" id="comment-form">
 									{% csrf_token %}
 									<textarea class="form-control border border-gray-300-gray" name="{{ comment_form.body.name }}" id="id_body" placeholder="Add your comment" rows="6" data-bind-characters-target="#charactersRemaining" maxlength="1000" required></textarea>
+									<input type="hidden" name="comment_id" value="None">
 									<div class="d-flex justify-content-between mt-3">
 										<small class="fw-light text-dark">
 											<span id="charactersRemaining">1000</span>
@@ -98,6 +113,7 @@
 										<button class="btn btn-primary animate-up-2" id="addComment">Send</button>
 									</div>
 								</form>
+								
 								{% else %}
 								<div class="section section-md bg-white text-black pt-0 line-bottom-light">
 									<div class="container">
@@ -169,12 +185,30 @@
 
 														<span class="font-small fw-light">{{ comment.n_likes }} like(s)</span>
 													</div>
-													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer1" aria-expanded="false" aria-controls="replyContainer1">
+													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer{{ comment.id }}" aria-expanded="false" aria-controls="replyContainer{{ comment.id }}">
 														<span class="fas fa-reply me-2"></span>
 														Reply
 													</a>
 												</div>
 											{% endif %}
+
+
+								<!-- reply form -->
+								<div class="collapse" id="replyContainer{{ comment.id }}" style="">
+									<label class="mb-4 d-none" for="exampleFormControlTextarea10">Replay</label>
+
+									{% if request.user.is_authenticated %}
+										<form method="POST" id="comment-form">
+										{% csrf_token %}
+										<textarea class="form-control border" id="exampleFormControlTextarea10" placeholder="Reply to John Doe" rows="6" data-bind-characters-target="#charactersRemainingReply" name="{{ comment_form.body.name }}" maxlength="1000"></textarea>
+										<input type="hidden" name="comment_id" value="{{ comment.id }}">
+										<div class="d-flex justify-content-between mt-3"><small class="fw-light"><span id="charactersRemainingReply">1000</span> characters remaining</small>
+										<button type="submit" class="btn btn-primary btn-sm animate-up-2">Send</button>
+									{% endif %}
+
+									</div>
+								</div>
+
 
 										</div>
 
@@ -233,7 +267,7 @@
 
 														<span class="font-small fw-light">{{ reply.n_likes }} like(s)</span>
 													</div>
-													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer1" aria-expanded="false" aria-controls="replyContainer1">
+													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer{{ comment.id }}" aria-expanded="false" aria-controls="replyContainer{{ comment.id }}">
 														<span class="fas fa-reply me-2"></span>
 														Reply
 													</a>
