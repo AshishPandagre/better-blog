@@ -180,7 +180,7 @@ def action(request):
 
 		comment = get_object_or_404(Comment, id=commentId)
 
-		op, _ = comment.opinions.get_or_create(user=request.user)
+		op, _ = Opinion.objects.get_or_create(user=request.user, comment=comment)
 
 		if action == "LIKE": status = 1
 		if action == "DISLIKE": status = -1

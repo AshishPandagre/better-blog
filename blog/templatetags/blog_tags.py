@@ -8,9 +8,8 @@ register = template.Library()
 @register.simple_tag
 def userLikedComment(user, commentId):
 	try:
-
 		c = get_object_or_404(Comment, id=int(commentId))
-		o = c.opinions.get(user=user)
+		o = get_object_or_404(Opinion, user=user, comment=c)
 		if o.action==1:
 			return "fas"
 		return "far"
@@ -22,9 +21,8 @@ def userLikedComment(user, commentId):
 @register.simple_tag
 def userDislikedComment(user, commentId):
 	try:
-
 		c = get_object_or_404(Comment, id=int(commentId))
-		o = c.opinions.get(user=user)
+		o = get_object_or_404(Opinion, user=user, comment=c)
 		if o.action==-1:
 			return "fas"
 		return "far"
