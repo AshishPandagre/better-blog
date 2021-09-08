@@ -102,21 +102,31 @@ class BlogDetail(FormMixin, DetailView):
 		
 		context['comment_form'] = CommentForm()
 		context['bookmarked'] = True if self.request.user.is_authenticated and Bookmark.objects.filter(user=self.request.user, blog=context['blog']) else False
-		context['comments'] = Comment.objects.filter(blog=context['blog'])
+		context['comments'] = Comment.objects.filter(blog=context['blog'], parent=None)
 		return context
 
 	def post(self, *args, **kwargs):
 		# form = self.get_context_data(**kwargs)['comment_form']
 		form = CommentForm(self.request.POST)
 		if form.is_valid():
-			print('*'*30)
-			print('form is valid.', form)
-			form.instance.commenter = self.request.user
-			form.instance.blog = self.get_object()
-			form.save()
-			return HttpResponseRedirect(reverse('blog-detail', kwargs={'slug': self.get_object().slug}))
+			print("in form valid().")
+			parent_obj = None
+			try:
+				parent_id = int(self.request.POST.get('parent_id'))
+				print('parent_id = ', parent_id)
+			except:
+				parent_id = None
+			if parent_id:
+				parent_obj = Comment.objects.get(id=parent_id)
 
-		else:
+			commenter = self.request.user
+			body = form.cleaned_data['body']
+			blog = self.get_object()
+
+			if parent_obj:
+				Comment(commenter=commenter, body=body, blog=blog, parent=parent_obj).save()
+			else:
+				Comment(commenter=commenter, body=body, blog=blog).save()
 			return HttpResponseRedirect(reverse('blog-detail', kwargs={'slug': self.get_object().slug}))
 
 

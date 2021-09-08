@@ -93,6 +93,8 @@ class Opinion(models.Model):
 
 	action = models.IntegerField(choices=OPINIONS, default=0)
 
+	def __str__(self):
+		return f'{self.user.username} - {self.comment.body} - {self.action}'
 
 
 class Comment(models.Model):
@@ -101,6 +103,7 @@ class Comment(models.Model):
 	blog = models.ForeignKey(Blog, models.CASCADE)
 	date_created = models.DateTimeField(auto_now_add=True)
 	opinions = GenericRelation(Opinion)
+	parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return f'{self.commenter.username} - {self.body}'
@@ -118,24 +121,3 @@ class Comment(models.Model):
 		# return 1
 		return self.opinions.filter(action=-1).count()
 
-
-class Reply(models.Model):
-	commenter = models.ForeignKey(User, models.SET_NULL, null=True)
-	body = models.CharField(max_length=1000)
-	comment = models.ForeignKey(Comment, models.CASCADE)
-	date_created = models.DateTimeField(auto_now_add=True)
-	opinions = GenericRelation(Opinion)
-
-	def __str__(self):
-		return f'{self.commenter.username} - {self.body}'
-
-	class Meta:
-		ordering = ['-date_created']
-
-	def n_likes(self):
-		# return 1
-		return self.opinions.filter(action=1).count()
-
-	def n_dislikes(self):
-		# return 1
-		return self.opinions.filter(action=-1).count()

@@ -193,27 +193,27 @@
 											{% endif %}
 
 
-								<!-- reply form -->
-								<div class="collapse" id="replyContainer{{ comment.id }}" style="">
-									<label class="mb-4 d-none" for="exampleFormControlTextarea10">Replay</label>
+										<!-- reply form -->
+										<div class="collapse" id="replyContainer{{ comment.id }}" style="">
+											<label class="mb-4 d-none" for="exampleFormControlTextarea10">Replay</label>
 
-									{% if request.user.is_authenticated %}
-										<form method="POST" id="comment-form">
-										{% csrf_token %}
-										<textarea class="form-control border" id="exampleFormControlTextarea10" placeholder="Reply to John Doe" rows="6" data-bind-characters-target="#charactersRemainingReply" name="{{ comment_form.body.name }}" maxlength="1000"></textarea>
-										<input type="hidden" name="comment_id" value="{{ comment.id }}">
-										<div class="d-flex justify-content-between mt-3"><small class="fw-light"><span id="charactersRemainingReply">1000</span> characters remaining</small>
-										<button type="submit" class="btn btn-primary btn-sm animate-up-2">Send</button>
-									{% endif %}
+											{% if request.user.is_authenticated %}
+												<form method="POST" id="reply-form">
+												{% csrf_token %}
+												<textarea class="form-control border" id="exampleFormControlTextarea10" placeholder="Reply to John Doe" rows="6" data-bind-characters-target="#charactersRemainingReply" name="{{ comment_form.body.name }}" maxlength="1000"></textarea>
+												<input type="hidden" name="parent_id" value="{{ comment.id }}">
+												<div class="d-flex justify-content-between mt-3"><small class="fw-light"><span id="charactersRemainingReply">1000</span> characters remaining</small>
+												<button type="submit" class="btn btn-primary btn-sm animate-up-2">Send</button>
+												</div>
+												</form>
+											{% endif %}
 
-									</div>
-								</div>
-
-
+											</div>
 										</div>
 
-										{% for reply in comment.reply_set.all %}
-										<div class="card bg-gray-200 border-gray-300 rounded p-4 ms-5 mb-4" id="{{comment.id}}">
+										{% for reply in comment.replies.all %}
+
+										<div class="card bg-gray-200 border-gray-300 rounded p-4 mb-4 ms-5">
 											<div class="d-flex justify-content-between mb-4">
 												<span class="font-small">
 													<a href="#">
@@ -232,21 +232,23 @@
 													  </span>
 													  <span class="sr-only">Toggle Dropdown</span>
 													</button>
-
+													 </div>
 													
+													
+													{% if reply.commenter == request.user %}
 														<div class="dropdown-menu py-0" style="">
-															{% if reply.commenter == request.user %}
 
-															  <a class="dropdown-item text-danger rounded-bottom" data-id="{{ reply.id }}" id="delete-comment" onclick="deleteComment('{{blog.slug}}', '{{reply.id}}')">
-																<span class="fa fa-trash me-2" aria-hidden="true"></span>Delete </a>
-																{% endif %}
+															<form method="POST" action="{% url 'deleteComment' comment.id %}">
+																{% csrf_token %}
+   															    <input  type="submit" class="dropdown-item text-danger rounded-bottom" value="Delete">
+																<span class="fa fa-trash me-2" aria-hidden="true"></span>
+															</form>
 
-															  <a class="dropdown-item text-danger rounded-bottom">
-																<span class="far fa-flag me-2" aria-hidden="true"></span>Report </a>
-														
 														</div>
+													{% endif %}
 
-												  </div>
+
+												 
 												  {% endif %}
 												</div>
 
@@ -267,15 +269,15 @@
 
 														<span class="font-small fw-light">{{ reply.n_likes }} like(s)</span>
 													</div>
-													<a class="fw-light font-small" data-bs-toggle="collapse" role="button" href="#replyContainer{{ comment.id }}" aria-expanded="false" aria-controls="replyContainer{{ comment.id }}">
-														<span class="fas fa-reply me-2"></span>
-														Reply
-													</a>
 												</div>
 											{% endif %}
 
+
 										</div>
+
 										{% endfor %}
+
+										</div>
 
 									{% endfor %}
 
