@@ -2,7 +2,7 @@
 
 A blog app created using django CBVs.
 
-## Features (basic blog functionality +)
+## Features (all blog functionality +)
 
 + Anyone can create blogs.
 + Complete authentication system built from scratch.
