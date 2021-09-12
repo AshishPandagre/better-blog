@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'accounts',
     'django.contrib.admin',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +166,7 @@ EMAIL_HOST_PASSWORD = get_secret('HOST_PASSWORD')
 
 AUTH_USER_MODEL = 'accounts.User'
 
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}
