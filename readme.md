@@ -10,6 +10,8 @@ A blog app created using django CBVs.
 + A user can also reply, like or dislike a comment.
 + Saves multiple sessions of a user.
 
+<img align="left" src="screenshots/db_design.png">
+
 Design provided by [Themesberg](https://themesberg.com/product/ui-kit/pixel-free-bootstrap-5-ui-kit)
 
 ## Usage
