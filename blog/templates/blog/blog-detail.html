@@ -233,15 +233,15 @@
 													  <span class="sr-only">Toggle Dropdown</span>
 													</button>
 													 </div>
-													
-													
+
 													{% if reply.commenter == request.user %}
 														<div class="dropdown-menu py-0" style="">
 
 															<form method="POST" action="{% url 'deleteComment' comment.id %}">
 																{% csrf_token %}
-   															    <input  type="submit" class="dropdown-item text-danger rounded-bottom" value="Delete">
+															  <input  type="submit" class="dropdown-item text-danger rounded-bottom" value="Delete">
 																<span class="fa fa-trash me-2" aria-hidden="true"></span>
+																
 															</form>
 
 														</div>
