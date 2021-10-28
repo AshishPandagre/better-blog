@@ -1,5 +1,7 @@
 # BetterBlog
 
+This project can be found live [here](https://betterblog.pythonanywhere.com/)
+
 A blog app created using django CBVs.
 
 ## Features (basic blog functionality +)
