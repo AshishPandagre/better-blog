@@ -2,13 +2,19 @@
 
 A blog app created using django CBVs.
 
-## Features (all blog functionality +)
+## Features (basic blog functionality +)
 
 + Anyone can create blogs.
 + Complete authentication system built from scratch.
 + A built in text editor for writing blogs.
 + A user can also reply, like or dislike a comment.
 + Saves multiple sessions of a user.
++ Responsive design
+
+## Coming soon
+
++ Nofitication system
++ Readers can mention each others in comment section
 
 <img align="left" src="screenshots/db_design.png">
 
