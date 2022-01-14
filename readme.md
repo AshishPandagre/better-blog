@@ -13,11 +13,6 @@ A blog app created using django CBVs.
 + Saves multiple sessions of a user.
 + Responsive design
 
-## Coming soon
-
-+ Nofitication system
-+ Readers can mention each others in comment section
-
 <img align="left" src="screenshots/db_design.png">
 
 Design provided by [Themesberg](https://themesberg.com/product/ui-kit/pixel-free-bootstrap-5-ui-kit)
