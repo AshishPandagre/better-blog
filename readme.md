@@ -15,7 +15,6 @@ A blog app created using django CBVs.
 
 <img align="left" src="screenshots/db_design.png">
 
-Design provided by [Themesberg](https://themesberg.com/product/ui-kit/pixel-free-bootstrap-5-ui-kit)
 
 ## Usage
 
@@ -33,3 +32,5 @@ python manage.py runserver
 <img align="left" width="300" src="screenshots/blog-list.png">
 <img align="left" width="300" src="screenshots/comments.JPG">
 <img align="left" width="300" src="screenshots/security.png">
+
+Design provided by [Themesberg](https://themesberg.com/product/ui-kit/pixel-free-bootstrap-5-ui-kit)
